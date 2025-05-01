@@ -10,15 +10,54 @@
         <input type="file" id="pdfFile" accept="application/pdf" />
         <br><br>
         <button type="submit">Enviar PDF</button>
-      </form>
-      
-      <div id="resultado">
+    </form>
+    
+    <div id="resultado">
         <!-- Aqui os dados vão aparecer -->
-      </div>
-      
-      <script>
-        // Aqui dentro vamos colocar o JS do fetch depois
-      </script>
-      
+    </div>
+    
+    <script>
+        const form = document.getElementById("uploadForm");
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault(); // impede recarregar a página
+
+            const input = document.getElementById("pdfFile");
+            const file = input.files[0];
+
+            if (!file) {
+                alert("Escolha um arquivo PDF!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("pdf", file); // "pdf" precisa bater com o nome usado no multer
+
+            fetch("http://localhost:3000/upload", {
+                method: "POST",
+                body: formData,
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("✅ Dados recebidos:", data);
+                mostrarResultado(data); // função que mostra os dados
+            })
+            .catch((error) => {
+                console.error("Erro:", error);
+            });
+        });
+
+        function mostrarResultado(dados) {
+            const div = document.getElementById("resultado");
+            div.innerHTML = ""; // limpa antes
+
+            for (const chave in dados) {
+                const valor = dados[chave];
+                const p = document.createElement("p");
+                p.textContent = `${chave}: ${valor}`;
+                div.appendChild(p);
+            }
+        }
+    </script>
 </body>
 </html>
